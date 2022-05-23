@@ -130,6 +130,13 @@ async function run() {
       res.send(result)
     })
 
+    // get all reviews 
+    app.get('/review', async (req, res) => {
+      const query = {}
+      const reviews = await userReviewCollection.find(query).toArray()
+      res.send(reviews);
+    })
+
     app.get('/admin/:email', async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email })
