@@ -1,8 +1,8 @@
 const express = require('express')
+const jwt = require('jsonwebtoken');
 const app = express()
 const cors = require('cors')
 require('dotenv').config()
-const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
 const port = process.env.PORT || 5000
@@ -21,11 +21,20 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-// client.connect(err => {
-//   const collection = client.db("test").collection("devices");
-//   // perform actions on the collection object
-//   client.close();
-// });
+function verifyJWT(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ message: 'UnAuthorized Access' });
+  }
+  const token = authHeader.split(' ')[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({ message: 'Forbidden Access' });
+    }
+    req.decoded = decoded;
+    next()
+  });
+}
 
 async function run() {
   try {
@@ -49,8 +58,9 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/order', async (req, res) => {
+    app.get('/order', verifyJWT, async (req, res) => {
       const email = req.query.email;
+      // console.log('Auth Header', authorization)
       const query = { email: email }
       const orders = await orderCollection.find(query).toArray()
       res.send(orders);
@@ -58,9 +68,9 @@ async function run() {
 
 
 
-    app.post('/order', async (req, res) => {
+    app.post('/order', verifyJWT, async (req, res) => {
       const order = req.body;
-      console.log('Adding New inventory Item', order);
+      console.log('New order', order);
       const result = await orderCollection.insertOne(order);
       console.log(result);
       res.send(result)
