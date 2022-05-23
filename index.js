@@ -43,6 +43,7 @@ async function run() {
     const productCollection = client.db('manufacturer_portal').collection('products')
     const orderCollection = client.db('manufacturer_portal').collection('orders')
     const userCollection = client.db('manufacturer_portal').collection('users')
+    const userProfileCollection = client.db('manufacturer_portal').collection('userProfiles')
 
     app.get('/product', async (req, res) => {
       const query = {};
@@ -100,14 +101,30 @@ async function run() {
       })
       // res.send(result);
       res.send({ result, token });
+    })
 
+    // create or update profile 
+    app.put('/profile/:email', async (req, res) => {
+      const email = req.params.email;
+      const userProfile = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: userProfile,
+      };
+      const result = await userProfileCollection.updateOne(filter, updateDoc, options);
+      const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '1d',
+      })
+      // res.send(result);
+      res.send({ result, token });
     })
 
     app.get('/admin/:email', async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email })
       const isAdmin = user.role === 'admin';
-      res.send({admin:isAdmin})
+      res.send({ admin: isAdmin })
     })
 
     // create admin an user 
