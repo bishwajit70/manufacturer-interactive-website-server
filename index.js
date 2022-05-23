@@ -44,6 +44,7 @@ async function run() {
     const orderCollection = client.db('manufacturer_portal').collection('orders')
     const userCollection = client.db('manufacturer_portal').collection('users')
     const userProfileCollection = client.db('manufacturer_portal').collection('userProfiles')
+    const userReviewCollection = client.db('manufacturer_portal').collection('reviews')
 
     app.get('/product', async (req, res) => {
       const query = {};
@@ -118,6 +119,15 @@ async function run() {
       })
       // res.send(result);
       res.send({ result, token });
+    })
+
+    // post review 
+    app.post('/review', async (req, res) => {
+      const userReview = req.body;
+      console.log('New Review', userReview);
+      const result = await userReviewCollection.insertOne(userReview);
+      console.log(result);
+      res.send(result)
     })
 
     app.get('/admin/:email', async (req, res) => {
