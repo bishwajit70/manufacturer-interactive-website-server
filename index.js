@@ -53,10 +53,32 @@ async function run() {
       res.send(products);
     })
 
+    app.post('/product', async (req, res) => {
+      const newProduct = req.body;
+      const result = await productCollection.insertOne(newProduct);
+      console.log(result);
+      res.send(result)
+    })
+
+    // purchase api 
     app.get('/purchase/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await productCollection.findOne(query);
+      res.send(result);
+    })
+    // payment api 
+    app.get('/payment/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollection.findOne(query);
+      res.send(result);
+    })
+
+    app.delete('/order/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollection.deleteOne(query);
       res.send(result);
     })
 
@@ -74,6 +96,7 @@ async function run() {
 
     })
 
+    // post an order api 
     app.post('/order', verifyJWT, async (req, res) => {
       const order = req.body;
       console.log('New order', order);
@@ -81,6 +104,14 @@ async function run() {
       console.log(result);
       res.send(result)
     })
+
+    // get all orders api 
+    app.get('/orders', async (req, res) => {
+      const orders = await orderCollection.find().toArray()
+      console.log(orders)
+      res.send(orders)
+    })
+
 
     app.get('/users', verifyJWT, async (req, res) => {
       const users = await userCollection.find().toArray()
