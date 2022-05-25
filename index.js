@@ -5,6 +5,8 @@ const cors = require('cors')
 require('dotenv').config()
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 const port = process.env.PORT || 5000
 
 // middletire 
@@ -67,6 +69,7 @@ async function run() {
       const result = await productCollection.findOne(query);
       res.send(result);
     })
+
     // payment api 
     app.get('/payment/:id', async (req, res) => {
       const id = req.params.id;
@@ -74,6 +77,24 @@ async function run() {
       const result = await orderCollection.findOne(query);
       res.send(result);
     })
+
+    // app.post('/create-payment-intent', async(req,res)=>{
+    //   const orders = req.body;
+    //   const unitprice = orders.unitprice;
+    //   const amount = unitprice*100;
+    //   const paymentIntent = await stripe.paymentIntents.create({
+    //     amount: amount,
+    //     currency: 'usd',
+    //     payment_method_types: ['card'],
+    //   });
+
+    //   res.send({clientSecret: paymentIntent.client_secret});
+    // })
+
+
+
+
+
     // delete an order 
     app.delete('/order/:id', async (req, res) => {
       const id = req.params.id;
@@ -149,6 +170,13 @@ async function run() {
       })
       // res.send(result);
       res.send({ result, token });
+    })
+
+    
+    app.get('/profile/:email', async (req, res) => {
+      const email = req.params.email;
+      const profile = await userProfileCollection.findOne({ email: email })
+      res.send(profile)
     })
 
     // create or update profile 
