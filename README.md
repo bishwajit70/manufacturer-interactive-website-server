@@ -7,7 +7,7 @@ This project was bootstrapped with [Bike Manufacturer Server](https://shielded-b
 * This is a bike manufacturer app
 In the project directory, you can run:
 
-## Used Technologies 
+## Used Technologies: 
 * dotenv 
 * express
 * react-firebase-hooks
