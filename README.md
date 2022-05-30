@@ -13,4 +13,4 @@ In the project directory, you can run:
 * react-firebase-hooks
 * jsonwebtoken
 * mongodb
-* stripe
+* stripe (not added)
